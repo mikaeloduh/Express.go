@@ -11,6 +11,14 @@ type ResponseWriter struct {
 	encoderHandler []EncoderHandler
 }
 
+// NewResponseWriter creates a new ResponseWriter
+func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
+	return &ResponseWriter{
+		ResponseWriter: w,
+		encoderHandler: []EncoderHandler{},
+	}
+}
+
 func (w *ResponseWriter) UseEncoder(enc EncoderHandler) {
 	w.encoderHandler = append(w.encoderHandler, enc)
 }
