@@ -1,8 +1,8 @@
 package framework
 
 import (
+	"context"
 	"errors"
-	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 
@@ -27,10 +27,38 @@ import (
 // - ErrorTypeJWTExpired: Token has expired
 // - ErrorTypeJWTInvalidSignature: Token signature is invalid
 // - ErrorTypeJWTInvalid: Any other JWT validation error
-func JWTAuthMiddleware(secretKey []byte) Middleware {
+// - ErrorTypeJWTInvalidSigningMethod: JWT signing method is invalid
+type Options struct {
+	Keyfunc    jwt.Keyfunc
+	GetHeader  func(r *Request) string
+	GetClaims  func(r *Request) (jwt.MapClaims, bool)
+	SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
+}
+
+// JWTAuthMiddleware creates a middleware that validates JWT tokens
+func JWTAuthMiddleware(options Options) Middleware {
+	// Handle default value logic
+	if options.GetHeader == nil {
+		options.GetHeader = func(r *Request) string {
+			return r.Header.Get("Authorization")
+		}
+	}
+
+	if options.GetClaims == nil {
+		options.GetClaims = func(r *Request) (jwt.MapClaims, bool) {
+			return jwt.MapClaims{}, false
+		}
+	}
+
+	if options.SetContext == nil {
+		options.SetContext = func(ctx context.Context, claims jwt.MapClaims) context.Context {
+			return WithJWTClaims(ctx, claims)
+		}
+	}
+
 	return func(w *ResponseWriter, r *Request, next func()) error {
 		// Extract token from Authorization header
-		authHeader := r.Header.Get("Authorization")
+		authHeader := options.GetHeader(r)
 		if authHeader == "" {
 			return werrors.ErrorTypeJWTMissing
 		}
@@ -44,13 +72,7 @@ func JWTAuthMiddleware(secretKey []byte) Middleware {
 		claims := jwt.MapClaims{}
 
 		// Parse and validate the token
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			// Validate signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return secretKey, nil
-		})
+		token, err := jwt.ParseWithClaims(tokenString, claims, options.Keyfunc)
 
 		// Handle specific JWT errors
 		if err != nil {
@@ -69,9 +91,16 @@ func JWTAuthMiddleware(secretKey []byte) Middleware {
 			return werrors.ErrorTypeJWTInvalid
 		}
 
+		// Check if custom claims retrieval is provided and has claims
+		if customClaims, ok := options.GetClaims(r); ok {
+			for k, v := range customClaims {
+				claims[k] = v
+			}
+		}
+
 		// Store claims in request context
 		r.Request = r.Request.WithContext(
-			WithJWTClaims(r.Context(), claims),
+			options.SetContext(r.Context(), claims),
 		)
 
 		next()
