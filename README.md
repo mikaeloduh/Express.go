@@ -9,6 +9,7 @@ A lightweight and flexible web framework for Go, inspired by Express.js. Express
 - **Error Handling**: Built-in error handling middleware
 - **Body Parsing**: Support for JSON and XML request/response parsing
 - **Dependency Injection**: Built-in dependency injection container with different scopes
+- **JWT Authentication**: Comprehensive JWT authentication middleware with granular error handling
 - **Rate Limiting**: Built-in rate limiting middleware
 - **Extensible**: Easy to extend with custom middleware and handlers
 
@@ -82,6 +83,39 @@ The framework includes a dependency injection container with support for differe
 container := framework.NewContainer()
 container.Register("service", factory, framework.SingletonScopeStrategy{})
 ```
+
+### JWT Authentication
+
+Express.go provides a comprehensive JWT authentication middleware that handles token validation and error reporting:
+
+```go
+// Create JWT middleware with your secret key
+secretKey := []byte("your-secret-key")
+router.Use(framework.JWTAuthMiddleware(secretKey))
+
+// Access JWT claims in your handler
+router.Handle("/protected", "GET", func(w *framework.ResponseWriter, r *framework.Request) error {
+    claims, ok := framework.GetJWTClaimsFromContext(r.Context())
+    if !ok {
+        return errors.New("JWT claims not found in context")
+    }
+    
+    // Access claims data
+    userID, _ := claims["user_id"].(string)
+    
+    return w.Encode(map[string]string{"message": "Protected resource", "user_id": userID})
+})
+```
+
+The middleware handles various JWT validation scenarios with specific error types:
+
+- Missing token
+- Invalid token format
+- Expired token
+- Invalid signature
+- Malformed token
+
+Each error type has a specific error message that can be used for client-side error handling.
 
 ## Contributing
 
