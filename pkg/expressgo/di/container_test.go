@@ -30,7 +30,7 @@ func NewTestService() *TestService {
 	}
 }
 
-func TestContainer_Singleton(t *testing.T) {
+func TestSingletonScope(t *testing.T) {
 	t.Parallel()
 
 	container := NewContainer()
@@ -43,7 +43,7 @@ func TestContainer_Singleton(t *testing.T) {
 	assert.Same(t, expectedInstance, testInstance)
 }
 
-func TestContainer_Singleton_Parallel(t *testing.T) {
+func TestSingletonScope_Parallel(t *testing.T) {
 	container := NewContainer()
 	container.Register("TestService", func() any { return NewTestService() }, &SingletonScopeStrategy{})
 
@@ -68,7 +68,7 @@ func TestContainer_Singleton_Parallel(t *testing.T) {
 	}
 }
 
-func TestContainer_Prototype(t *testing.T) {
+func TestPrototypeScope(t *testing.T) {
 	t.Parallel()
 
 	container := NewContainer()
