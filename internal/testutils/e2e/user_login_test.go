@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"webframework/errors"
-	"webframework/framework"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 type LoginRequest struct {
@@ -24,24 +24,24 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w *framework.ResponseWriter, r *framework.Request) error {
+func (c *UserController) Login(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 	var reqData LoginRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		return err
 	}
 
 	if reqData.Password == "" || reqData.Email == "" {
-		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Login's format incorrect."))
+		return e.NewError(http.StatusBadRequest, fmt.Errorf("Login's format incorrect."))
 	}
 
 	user := c.UserService.FindUserByEmail(reqData.Email)
 
 	if user == nil {
-		return errors.NewError(http.StatusUnauthorized, fmt.Errorf("User not found."))
+		return e.NewError(http.StatusUnauthorized, fmt.Errorf("User not found."))
 	}
 
 	if user.Password != reqData.Password {
-		return errors.NewError(http.StatusUnauthorized, fmt.Errorf("Password incorrect."))
+		return e.NewError(http.StatusUnauthorized, fmt.Errorf("Password incorrect."))
 	}
 
 	respData := LoginResponse{
@@ -57,10 +57,10 @@ func (c *UserController) Login(w *framework.ResponseWriter, r *framework.Request
 
 func TestUserLogin(t *testing.T) {
 	userController := NewUserController(userService)
-	router := framework.NewRouter()
-	router.Use(framework.JSONBodyParser)
-	router.Use(framework.JSONBodyEncoder)
-	router.Handle("/login", http.MethodPost, framework.HandlerFunc(userController.Login))
+	router := expressgo.NewRouter()
+	router.Use(expressgo.JSONBodyParser)
+	router.Use(expressgo.JSONBodyEncoder)
+	router.Handle("/login", http.MethodPost, expressgo.HandlerFunc(userController.Login))
 
 	t.Run("test login successfully", func(t *testing.T) {
 		loginBody := `{"email": "correctEmail@example.com",  "password": "correctPassword"}`

@@ -1,6 +1,6 @@
 package e2e
 
-// User
+// User model
 type User struct {
 	Id       uint64
 	Username string
@@ -8,7 +8,8 @@ type User struct {
 	Password string
 }
 
-// UserService
+// UserService is a mock implementation of a user service
+// It stores users in memory and provides storage methods.
 type UserService struct {
 	store  map[uint64]*User
 	nextId uint64
@@ -45,7 +46,7 @@ func (u *UserService) FindUserByEmail(email string) *User {
 	return nil
 }
 
-// UserController
+// UserController is a mock implementation of a user controller
 type UserController struct {
 	UserService *UserService
 }

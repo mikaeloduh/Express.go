@@ -1,4 +1,4 @@
-package framework
+package di
 
 import (
 	"fmt"
@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mikaeloduh/expressgo/pkg/expressgo"
 )
 
 type TestService struct {
@@ -28,7 +30,7 @@ func NewTestService() *TestService {
 	}
 }
 
-func TestContainer_Singleton(t *testing.T) {
+func TestSingletonScope(t *testing.T) {
 	t.Parallel()
 
 	container := NewContainer()
@@ -41,7 +43,7 @@ func TestContainer_Singleton(t *testing.T) {
 	assert.Same(t, expectedInstance, testInstance)
 }
 
-func TestContainer_Singleton_Parallel(t *testing.T) {
+func TestSingletonScope_Parallel(t *testing.T) {
 	container := NewContainer()
 	container.Register("TestService", func() any { return NewTestService() }, &SingletonScopeStrategy{})
 
@@ -66,7 +68,7 @@ func TestContainer_Singleton_Parallel(t *testing.T) {
 	}
 }
 
-func TestContainer_Prototype(t *testing.T) {
+func TestPrototypeScope(t *testing.T) {
 	t.Parallel()
 
 	container := NewContainer()
@@ -82,9 +84,9 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 	container := NewContainer()
 	container.Register("TestService", func() any { return NewTestService() }, &HttpRequestScopeStrategy{})
 
-	router := NewRouter()
+	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 		service2 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
@@ -112,9 +114,9 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 	container := NewContainer()
 	container.Register("TestService", func() any { return NewTestService() }, &HttpRequestScopeStrategy{})
 
-	router := NewRouter()
+	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p", service1)))
@@ -155,9 +157,9 @@ func TestHttpRequestScope_MultipleServices(t *testing.T) {
 		return NewTestService()
 	}, &HttpRequestScopeStrategy{})
 
-	router := NewRouter()
+	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 		// get two service instances in the same request
 		service1a := container.GetWithContext(r.Context(), "Service1").(*TestService)
 		service2a := container.GetWithContext(r.Context(), "Service2").(*TestService)

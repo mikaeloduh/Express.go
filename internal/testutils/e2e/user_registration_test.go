@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"webframework/errors"
-	"webframework/framework"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 type RegisterRequest struct {
@@ -25,7 +25,7 @@ type RegisterResponse struct {
 	Email    string `json:"email" xml:"email"`
 }
 
-func (c *UserController) Register(w *framework.ResponseWriter, r *framework.Request) error {
+func (c *UserController) Register(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 	var reqData RegisterRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -33,11 +33,11 @@ func (c *UserController) Register(w *framework.ResponseWriter, r *framework.Requ
 	}
 
 	if reqData.Username == "" || reqData.Email == "" || reqData.Password == "" {
-		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Registration's format incorrect."))
+		return e.NewError(http.StatusBadRequest, fmt.Errorf("Registration's format incorrect."))
 	}
 
 	if c.UserService.FindUserByEmail(reqData.Email) != nil {
-		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email"))
+		return e.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email"))
 	}
 
 	user, _ := c.UserService.CreateUser(reqData.Username, reqData.Email, reqData.Password)
@@ -55,12 +55,12 @@ func (c *UserController) Register(w *framework.ResponseWriter, r *framework.Requ
 
 func TestRegisterHandlerJSON(t *testing.T) {
 	userController := NewUserController(userService)
-	router := framework.NewRouter()
-	router.Use(framework.JSONBodyParser)
-	router.Use(framework.JSONBodyEncoder)
-	router.Use(framework.XMLBodyParser)
-	router.Use(framework.XMLBodyEncoder)
-	router.Handle("/register", http.MethodPost, framework.HandlerFunc(userController.Register))
+	router := expressgo.NewRouter()
+	router.Use(expressgo.JSONBodyParser)
+	router.Use(expressgo.JSONBodyEncoder)
+	router.Use(expressgo.XMLBodyParser)
+	router.Use(expressgo.XMLBodyEncoder)
+	router.Handle("/register", http.MethodPost, expressgo.HandlerFunc(userController.Register))
 
 	t.Run("test register user successfully", func(t *testing.T) {
 		jsonBody := `{"username": "John Doe", "email": "jdoe@example.com", "password": "abc"}`

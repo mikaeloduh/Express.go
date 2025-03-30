@@ -1,4 +1,4 @@
-package framework
+package di
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/mikaeloduh/expressgo/pkg/expressgo"
 )
 
 type ScopeStrategy interface {
@@ -87,10 +89,10 @@ func (h *HttpRequestScopeStrategy) clearRequestInstances(requestID string) {
 }
 
 // HttpRequestScopeMiddleware is a Middleware that manages request scoped services
-func HttpRequestScopeMiddleware(container *Container) Middleware {
+func HttpRequestScopeMiddleware(container *Container) expressgo.Middleware {
 	var requestCounter uint64
 
-	return func(w *ResponseWriter, r *Request, next func()) error {
+	return func(w *expressgo.ResponseWriter, r *expressgo.Request, next func()) error {
 		requestID := atomic.AddUint64(&requestCounter, 1)
 
 		ctx := context.WithValue(r.Context(), REQUESTID, requestID)

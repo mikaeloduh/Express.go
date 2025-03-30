@@ -1,11 +1,12 @@
-package framework
+package expressgo
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"webframework/errors"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 // ErrorHandlerFunc is an interface of error handler
@@ -13,11 +14,12 @@ type ErrorHandlerFunc func(err error, w *ResponseWriter, r *Request, next func(e
 
 // DefaultNotFoundErrorHandler return 404 page not found with detail message
 func DefaultNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		if e == errors.ErrorTypeNotFound {
-			w.WriteHeader(e.Code)
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeNotFound) {
+			w.WriteHeader(er.Code)
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.Write([]byte(fmt.Sprintf("Cannot find the path \"%v\"", r.URL.Path)))
+			_, _ = w.Write([]byte(fmt.Sprintf("Cannot find the path \"%v\"", r.URL.Path)))
 			return
 		}
 	}
@@ -27,15 +29,16 @@ func DefaultNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next 
 
 // DefaultMethodNotAllowedErrorHandler return 405 method not allowed with detail message
 func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		if e == errors.ErrorTypeMethodNotAllowed {
-			w.WriteHeader(e.Code)
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeMethodNotAllowed) {
+			w.WriteHeader(er.Code)
 			path := strings.Trim(r.URL.Path, "/")
 			if path == "" {
 				path = "/"
 			}
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.Write([]byte(fmt.Sprintf("Method \"%v\" is not allowed on path \"%v\"", r.Method, path)))
+			_, _ = w.Write([]byte(fmt.Sprintf("Method \"%v\" is not allowed on path \"%v\"", r.Method, path)))
 			return
 		}
 	}
@@ -44,11 +47,12 @@ func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Reques
 }
 
 func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		if e == errors.ErrorTypeUnauthorized {
-			w.WriteHeader(e.Code)
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeUnauthorized) {
+			w.WriteHeader(er.Code)
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.Write([]byte("401 unauthorized"))
+			_, _ = w.Write([]byte("401 unauthorized"))
 			return
 		}
 	}
@@ -58,14 +62,15 @@ func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, n
 
 // DefaultFallbackErrorHandler catch all remaining errors
 func DefaultFallbackErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		w.WriteHeader(e.Code)
+	var er *e.Error
+	if errors.As(err, &er) {
+		w.WriteHeader(er.Code)
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Write([]byte(e.Error()))
+		_, _ = w.Write([]byte(er.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Write([]byte("500 internal server error"))
+	_, _ = w.Write([]byte("500 internal server error"))
 }

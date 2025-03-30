@@ -1,4 +1,4 @@
-package test
+package expressgo
 
 import (
 	"encoding/json"
@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"webframework/framework"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -26,8 +25,8 @@ func TestReadBodyAsObject_JSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	r := framework.Request{Request: req}
-	r.BodyParser = framework.JSONDecoder
+	r := Request{Request: req}
+	r.BodyParser = JSONDecoder
 
 	err := r.ParseBodyInto(&testObject)
 	assert.NoError(t, err)
@@ -45,8 +44,8 @@ func TestReadBodyAsObject_XML(t *testing.T) {
 	req.Header.Set("Content-Type", "application/xml")
 
 	var testObject TestObject
-	r := framework.Request{Request: req}
-	r.BodyParser = framework.XMLDecoder
+	r := Request{Request: req}
+	r.BodyParser = XMLDecoder
 
 	err := r.ParseBodyInto(&testObject)
 	assert.NoError(t, err)
@@ -61,8 +60,8 @@ func TestReadBodyAsObject_InvalidContentType(t *testing.T) {
 	req.Header.Set("Content-Type", "text/plain")
 
 	var testObject TestObject
-	r := framework.Request{Request: req}
-	r.BodyParser = framework.JSONDecoder
+	r := Request{Request: req}
+	r.BodyParser = JSONDecoder
 
 	err := r.ParseBodyInto(&testObject)
 	assert.Error(t, err)
@@ -75,8 +74,8 @@ func TestReadBodyAsObject_InvalidBody(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	r := framework.Request{Request: req}
-	r.BodyParser = framework.JSONDecoder
+	r := Request{Request: req}
+	r.BodyParser = JSONDecoder
 
 	err := r.ParseBodyInto(&testObject)
 	assert.Error(t, err)
@@ -90,8 +89,8 @@ func TestWriteObjectAsJSON(t *testing.T) {
 	expected, _ := json.Marshal(testObject)
 
 	wr := httptest.NewRecorder()
-	w := &framework.ResponseWriter{ResponseWriter: wr}
-	w.UseEncoder(framework.JSONEncoderHandler)
+	w := &ResponseWriter{ResponseWriter: wr}
+	w.UseEncoder(JSONEncoderHandler)
 	w.Header().Set("Content-Type", "application/json")
 
 	err := w.Encode(testObject)
@@ -107,8 +106,8 @@ func TestWriteObjectAsXML(t *testing.T) {
 	expected, _ := xml.Marshal(testObject)
 
 	wr := httptest.NewRecorder()
-	w := &framework.ResponseWriter{ResponseWriter: wr}
-	w.UseEncoder(framework.XMLEncoderHandler)
+	w := &ResponseWriter{ResponseWriter: wr}
+	w.UseEncoder(XMLEncoderHandler)
 	w.Header().Set("Content-Type", "application/xml")
 
 	err := w.Encode(testObject)

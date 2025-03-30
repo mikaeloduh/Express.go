@@ -1,21 +1,21 @@
-package test
+package expressgo
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"webframework/errors"
-	"webframework/framework"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 func TestDefaultErrorHandler(t *testing.T) {
-	router := framework.NewRouter()
-	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
-		w.Write([]byte("OK"))
+	r := NewRouter()
+	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+		_, _ = w.Write([]byte("OK"))
 		return nil
 	}))
 	// not register any error handlers (use the default error handler)
@@ -26,7 +26,7 @@ func TestDefaultErrorHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/non-existent", nil)
 		w := httptest.NewRecorder()
 
-		router.ServeHTTP(w, req)
+		r.ServeHTTP(w, req)
 
 		// Verify the response
 		assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, got %d", http.StatusNotFound, w.Code)
@@ -40,7 +40,7 @@ func TestDefaultErrorHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodDelete, "/test", nil)
 		w := httptest.NewRecorder()
 
-		router.ServeHTTP(w, req)
+		r.ServeHTTP(w, req)
 
 		// Verify the response
 		assert.Equal(t, http.StatusMethodNotAllowed, w.Code, "Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Code)
@@ -50,18 +50,19 @@ func TestDefaultErrorHandler(t *testing.T) {
 }
 
 // The custom error handling function for 404 errors
-func JSONNotFoundErrorHandler(err error, w *framework.ResponseWriter, r *framework.Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		if e == errors.ErrorTypeNotFound {
-			w.WriteHeader(e.Code)
+func JSONNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeNotFound) {
+			w.WriteHeader(er.Code)
 			response := map[string]interface{}{
 				"error":   "404 page not found",
 				"path":    r.URL.Path,
-				"message": e.Error(),
+				"message": er.Error(),
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
+			_ = json.NewEncoder(w).Encode(response)
 
 			return
 		}
@@ -71,19 +72,20 @@ func JSONNotFoundErrorHandler(err error, w *framework.ResponseWriter, r *framewo
 }
 
 // The custom error handling function for 405 errors
-func JSONMethodNotAllowedErrorHandler(err error, w *framework.ResponseWriter, r *framework.Request, next func(error)) {
-	if e, ok := err.(*errors.Error); ok {
-		if e == errors.ErrorTypeMethodNotAllowed {
-			w.WriteHeader(e.Code)
+func JSONMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeMethodNotAllowed) {
+			w.WriteHeader(er.Code)
 			response := map[string]interface{}{
 				"error":   "405 method not allowed",
 				"path":    r.URL.Path,
 				"method":  r.Method,
-				"message": e.Error(),
+				"message": er.Error(),
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
+			_ = json.NewEncoder(w).Encode(response)
 
 			return
 		}
@@ -93,14 +95,14 @@ func JSONMethodNotAllowedErrorHandler(err error, w *framework.ResponseWriter, r 
 }
 
 func TestCustomErrorHandling(t *testing.T) {
-	router := framework.NewRouter()
+	r := NewRouter()
 
 	// register custom error handlers
-	router.RegisterErrorHandler(JSONNotFoundErrorHandler)
-	router.RegisterErrorHandler(JSONMethodNotAllowedErrorHandler)
+	r.RegisterErrorHandler(JSONNotFoundErrorHandler)
+	r.RegisterErrorHandler(JSONMethodNotAllowedErrorHandler)
 
-	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
-		w.Write([]byte("OK"))
+	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+		_, _ = w.Write([]byte("OK"))
 		return nil
 	}))
 
@@ -134,7 +136,7 @@ func TestCustomErrorHandling(t *testing.T) {
 			req := httptest.NewRequest(tt.method, tt.path, nil)
 			w := httptest.NewRecorder()
 
-			router.ServeHTTP(w, req)
+			r.ServeHTTP(w, req)
 
 			// check status code
 			assert.Equal(t, tt.expectedCode, w.Code, "Expected status code %d, got %d", tt.expectedCode, w.Code)

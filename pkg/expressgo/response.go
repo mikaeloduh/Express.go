@@ -1,9 +1,10 @@
-package framework
+package expressgo
 
 import (
 	"fmt"
 	"net/http"
-	"webframework/errors"
+
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 type ResponseWriter struct {
@@ -25,7 +26,7 @@ func (w *ResponseWriter) UseEncoder(enc EncoderHandler) {
 
 func (w *ResponseWriter) Encode(obj interface{}) error {
 	encoder := func(rw http.ResponseWriter, obj interface{}) error {
-		return errors.NewError(http.StatusInternalServerError, fmt.Errorf("unsupported Content-Type: %s", rw.Header().Get("Content-Type")))
+		return e.NewError(http.StatusInternalServerError, fmt.Errorf("unsupported Content-Type: %s", rw.Header().Get("Content-Type")))
 	}
 
 	for i := len(w.encoderHandler) - 1; i >= 0; i-- {
