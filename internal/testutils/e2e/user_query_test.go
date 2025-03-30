@@ -9,8 +9,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 
-	"webframework/errors"
-	"webframework/framework"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware"
 )
 
 type UserQueryResponse struct {
@@ -18,7 +19,7 @@ type UserQueryResponse struct {
 	Email    string `json:"email"`
 }
 
-func UserQueryHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func UserQueryHandler(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 	res := UserQueryResponse{
 		Username: "correctName",
 		Email:    "q4o5D@example.com",
@@ -33,20 +34,20 @@ func TestUserQuery(t *testing.T) {
 	// JWT secret key for authentication
 	var authSecretKey = []byte("auth-secret-key")
 
-	var jwtOptions = framework.Options{
+	var jwtOptions = middleware.Options{
 		Keyfunc: func(token *jwt.Token) (interface{}, error) {
 			// Validate signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.ErrorTypeJWTInvalidSigningMethod
+				return nil, e.ErrorTypeJWTInvalidSigningMethod
 			}
 			return authSecretKey, nil
 		},
 	}
 
-	router := framework.NewRouter()
-	router.Use(framework.JSONBodyEncoder)
-	router.Use(framework.JWTAuthMiddleware(jwtOptions))
-	router.Handle("/query", http.MethodGet, framework.HandlerFunc(UserQueryHandler))
+	router := expressgo.NewRouter()
+	router.Use(expressgo.JSONBodyEncoder)
+	router.Use(middleware.JWTAuthMiddleware(jwtOptions))
+	router.Handle("/query", http.MethodGet, expressgo.HandlerFunc(UserQueryHandler))
 
 	t.Run("test query user successfully with JWT", func(t *testing.T) {
 		// Generate a valid JWT token

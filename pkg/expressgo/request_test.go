@@ -1,4 +1,4 @@
-package framework
+package expressgo
 
 import (
 	"net/http/httptest"

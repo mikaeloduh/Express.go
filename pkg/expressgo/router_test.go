@@ -1,4 +1,4 @@
-package test
+package expressgo
 
 import (
 	"fmt"
@@ -7,33 +7,31 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"webframework/framework"
-
 	"github.com/stretchr/testify/assert"
 )
 
 // Handler functions remain the same
-func homeHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func homeHandler(w *ResponseWriter, r *Request) error {
 	fmt.Fprintf(w, "Welcome to the homepage!")
 	return nil
 }
 
-func helloHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func helloHandler(w *ResponseWriter, r *Request) error {
 	fmt.Fprintf(w, "Hello, World!")
 	return nil
 }
 
-func getUserHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func getUserHandler(w *ResponseWriter, r *Request) error {
 	fmt.Fprintf(w, "Retrieve user information")
 	return nil
 }
 
-func postUserHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func postUserHandler(w *ResponseWriter, r *Request) error {
 	fmt.Fprintf(w, "Create a new user")
 	return nil
 }
 
-func userProfileHandler(w *framework.ResponseWriter, r *framework.Request) error {
+func userProfileHandler(w *ResponseWriter, r *Request) error {
 	fmt.Fprintf(w, "User profile page")
 	return nil
 }
@@ -41,14 +39,14 @@ func userProfileHandler(w *framework.ResponseWriter, r *framework.Request) error
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
 	// Create a new Router
-	route := framework.NewRouter()
+	route := NewRouter()
 
 	// Register handlers with exact path and method matching
-	route.Handle("/", http.MethodGet, framework.HandlerFunc(homeHandler))
-	route.Handle("/hello", http.MethodGet, framework.HandlerFunc(helloHandler))
-	route.Handle("/user", http.MethodGet, framework.HandlerFunc(getUserHandler))
-	route.Handle("/user", http.MethodPost, framework.HandlerFunc(postUserHandler))
-	route.Handle("/user/profile", http.MethodGet, framework.HandlerFunc(userProfileHandler))
+	route.Handle("/", http.MethodGet, HandlerFunc(homeHandler))
+	route.Handle("/hello", http.MethodGet, HandlerFunc(helloHandler))
+	route.Handle("/user", http.MethodGet, HandlerFunc(getUserHandler))
+	route.Handle("/user", http.MethodPost, HandlerFunc(postUserHandler))
+	route.Handle("/user/profile", http.MethodGet, HandlerFunc(userProfileHandler))
 
 	// Start a new test server using the custom Router
 	ts := httptest.NewServer(route)
@@ -94,7 +92,7 @@ func TestRouting(t *testing.T) {
 }
 
 // Create a test middleware that checks for a specific header
-func testMiddleware(w *framework.ResponseWriter, r *framework.Request, next func()) error {
+func testMiddleware(w *ResponseWriter, r *Request, next func()) error {
 	if r.Header.Get("X-Test") != "test-value" {
 		return fmt.Errorf("missing or invalid X-Test header")
 	}
@@ -105,13 +103,13 @@ func testMiddleware(w *framework.ResponseWriter, r *framework.Request, next func
 // TestMiddleware verifies that middleware functions are correctly applied
 func TestMiddleware(t *testing.T) {
 	// Create a new Router
-	route := framework.NewRouter()
+	route := NewRouter()
 
 	// Register the middleware
 	route.Use(testMiddleware)
 
 	// Register a simple handler
-	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
+	route.Handle("/test", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
 		fmt.Fprintf(w, "test passed")
 		return nil
 	}))

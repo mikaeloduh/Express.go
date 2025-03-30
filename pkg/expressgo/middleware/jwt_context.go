@@ -1,4 +1,4 @@
-package framework
+package middleware
 
 import (
 	"context"
@@ -22,7 +22,7 @@ func WithJWTClaims(ctx context.Context, claims jwt.MapClaims) context.Context {
 }
 
 // GetJWTClaimsFromContext extracts JWT claims from the context
-// 
+//
 // This function is used by route handlers to access the JWT claims after the
 // JWTAuthMiddleware has successfully validated the token and stored the claims.
 //
@@ -32,16 +32,16 @@ func WithJWTClaims(ctx context.Context, claims jwt.MapClaims) context.Context {
 //
 // Example usage:
 //
-//   func MyHandler(w *framework.ResponseWriter, r *framework.Request) error {
-//       claims, ok := framework.GetJWTClaimsFromContext(r.Context())
-//       if !ok {
-//           return errors.New("JWT claims not found in context")
-//       }
-//       
-//       // Access claims
-//       userID, _ := claims["user_id"].(string)
-//       return nil
-//   }
+//	func MyHandler(w *framework.ResponseWriter, r *framework.Request) error {
+//	    claims, ok := framework.GetJWTClaimsFromContext(r.Context())
+//	    if !ok {
+//	        return errors.New("JWT claims not found in context")
+//	    }
+//
+//	    // Access claims
+//	    userID, _ := claims["user_id"].(string)
+//	    return nil
+//	}
 func GetJWTClaimsFromContext(ctx context.Context) (jwt.MapClaims, bool) {
 	claims, ok := ctx.Value(JWTClaimsContextKeyValue).(jwt.MapClaims)
 	return claims, ok
