@@ -10,6 +10,13 @@ import (
 	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
+type Options struct {
+	Keyfunc    jwt.Keyfunc
+	GetHeader  func(r *expressgo.Request) string
+	GetClaims  func(r *expressgo.Request) (jwt.MapClaims, bool)
+	SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
+}
+
 // JWTAuthMiddleware creates a new middleware for JWT authentication that validates JWT tokens
 // in the Authorization header using the provided secret key.
 //
@@ -29,14 +36,6 @@ import (
 // - ErrorTypeJWTInvalidSignature: Token signature is invalid
 // - ErrorTypeJWTInvalid: Any other JWT validation error
 // - ErrorTypeJWTInvalidSigningMethod: JWT signing method is invalid
-type Options struct {
-	Keyfunc    jwt.Keyfunc
-	GetHeader  func(r *expressgo.Request) string
-	GetClaims  func(r *expressgo.Request) (jwt.MapClaims, bool)
-	SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
-}
-
-// JWTAuthMiddleware creates a middleware that validates JWT tokens
 func JWTAuthMiddleware(options Options) expressgo.Middleware {
 	// Handle default value logic
 	if options.GetHeader == nil {

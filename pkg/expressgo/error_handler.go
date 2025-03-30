@@ -47,8 +47,9 @@ func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Reques
 }
 
 func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if er, ok := err.(*e.Error); ok {
-		if er == e.ErrorTypeUnauthorized {
+	var er *e.Error
+	if errors.As(err, &er) {
+		if errors.Is(er, e.ErrorTypeUnauthorized) {
 			w.WriteHeader(er.Code)
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			_, _ = w.Write([]byte("401 unauthorized"))
@@ -61,7 +62,8 @@ func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, n
 
 // DefaultFallbackErrorHandler catch all remaining errors
 func DefaultFallbackErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
-	if er, ok := err.(*e.Error); ok {
+	var er *e.Error
+	if errors.As(err, &er) {
 		w.WriteHeader(er.Code)
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		_, _ = w.Write([]byte(er.Error()))

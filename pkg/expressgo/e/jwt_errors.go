@@ -2,8 +2,8 @@ package e
 
 import "net/http"
 
+// JWT specific errors
 var (
-	// JWT specific errors
 	ErrorTypeJWTMissing              = NewError(http.StatusUnauthorized, errorWithMsg("JWT token is missing"))
 	ErrorTypeJWTInvalidFormat        = NewError(http.StatusUnauthorized, errorWithMsg("Invalid JWT format"))
 	ErrorTypeJWTInvalid              = NewError(http.StatusUnauthorized, errorWithMsg("Invalid JWT token"))

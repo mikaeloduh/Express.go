@@ -19,7 +19,7 @@ func (f HandlerFunc) ServeHTTP(w *ResponseWriter, r *Request) error {
 	return f(w, r)
 }
 
-// Convert the standard http.Handler to a Handler that returns an error
+// WrapHandler Convert the standard http.Handler to a Handler that returns an error
 func WrapHandler(h http.Handler) Handler {
 	return HandlerFunc(func(w *ResponseWriter, r *Request) error {
 		h.ServeHTTP(w.ResponseWriter, r.Request)
