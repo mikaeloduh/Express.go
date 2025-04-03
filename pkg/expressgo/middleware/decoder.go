@@ -6,10 +6,10 @@ import (
 	"io"
 )
 
-func JSONDecoder(r io.Reader, v interface{}) error {
+func JSONDecoder(r io.Reader, v any) error {
 	return json.NewDecoder(r).Decode(v)
 }
 
-func XMLDecoder(r io.Reader, v interface{}) error {
+func XMLDecoder(r io.Reader, v any) error {
 	return xml.NewDecoder(r).Decode(v)
 }
