@@ -7,14 +7,18 @@ import (
 
 type Request struct {
 	*http.Request
-	BodyParser Decoder
+	decoder Decoder
+}
+
+func (r *Request) SetDecoder(dec Decoder) {
+	r.decoder = dec
 }
 
 // ParseBodyInto decodes the request body into the provided object
 func (r *Request) ParseBodyInto(obj interface{}) error {
-	if r.BodyParser == nil {
+	if r.decoder == nil {
 		return fmt.Errorf("body parser not set, content type: %s", r.Header.Get("Content-Type"))
 	}
 
-	return r.BodyParser(r.Body, obj)
+	return r.decoder(r.Body, obj)
 }

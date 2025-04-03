@@ -10,8 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware"
+	expressgojwt "github.com/mikaeloduh/expressgo/pkg/expressgo/middleware/expressgo_jwt"
 )
 
 type UserQueryResponse struct {
@@ -34,11 +33,11 @@ func TestUserQuery(t *testing.T) {
 	// JWT secret key for authentication
 	var authSecretKey = []byte("auth-secret-key")
 
-	var jwtOptions = middleware.Options{
+	var jwtOptions = expressgojwt.Options{
 		Keyfunc: func(token *jwt.Token) (interface{}, error) {
 			// Validate signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, e.ErrorTypeJWTInvalidSigningMethod
+				return nil, expressgojwt.ErrorTypeJWTInvalidSigningMethod
 			}
 			return authSecretKey, nil
 		},
@@ -46,7 +45,7 @@ func TestUserQuery(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(expressgo.JSONBodyEncoder)
-	router.Use(middleware.JWTAuthMiddleware(jwtOptions))
+	router.Use(expressgojwt.JWTAuthMiddleware(jwtOptions))
 	router.Handle("/query", http.MethodGet, expressgo.HandlerFunc(UserQueryHandler))
 
 	t.Run("test query user successfully with JWT", func(t *testing.T) {

@@ -9,28 +9,24 @@ import (
 
 type ResponseWriter struct {
 	http.ResponseWriter
-	encoderHandler []EncoderHandler
+	encoder Encoder
 }
 
 // NewResponseWriter creates a new ResponseWriter
 func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
 	return &ResponseWriter{
 		ResponseWriter: w,
-		encoderHandler: []EncoderHandler{},
+		encoder: func(rw http.ResponseWriter, obj any) error {
+			// fallback encoder
+			return e.NewError(http.StatusInternalServerError, fmt.Errorf("unsupported Content-Type: %s", rw.Header().Get("Content-Type")))
+		},
 	}
 }
 
-func (w *ResponseWriter) UseEncoder(enc EncoderHandler) {
-	w.encoderHandler = append(w.encoderHandler, enc)
+func (w *ResponseWriter) UseEncoderDecorator(enc EncoderDecorator) {
+	w.encoder = enc(w.encoder)
 }
 
-func (w *ResponseWriter) Encode(obj interface{}) error {
-	encoder := func(rw http.ResponseWriter, obj interface{}) error {
-		return e.NewError(http.StatusInternalServerError, fmt.Errorf("unsupported Content-Type: %s", rw.Header().Get("Content-Type")))
-	}
-
-	for i := len(w.encoderHandler) - 1; i >= 0; i-- {
-		encoder = w.encoderHandler[i](encoder)
-	}
-	return encoder(w.ResponseWriter, obj)
+func (w *ResponseWriter) Encode(obj any) error {
+	return w.encoder(w.ResponseWriter, obj)
 }
