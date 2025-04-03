@@ -1,4 +1,4 @@
-package middleware
+package expressgo_jwt
 
 import (
 	"context"

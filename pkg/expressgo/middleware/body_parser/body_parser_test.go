@@ -1,4 +1,4 @@
-package middleware
+package body_parser
 
 import (
 	"encoding/json"

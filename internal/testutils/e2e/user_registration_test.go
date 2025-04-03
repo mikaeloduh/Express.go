@@ -11,7 +11,7 @@ import (
 
 	"github.com/mikaeloduh/expressgo/pkg/expressgo"
 	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware"
+	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware/body_parser"
 )
 
 type RegisterRequest struct {
@@ -57,9 +57,9 @@ func (c *UserController) Register(w *expressgo.ResponseWriter, r *expressgo.Requ
 func TestRegisterHandlerJSON(t *testing.T) {
 	userController := NewUserController(userService)
 	router := expressgo.NewRouter()
-	router.Use(middleware.JSONBodyParser)
+	router.Use(body_parser.JSONBodyParser)
 	router.Use(expressgo.JSONBodyEncoder)
-	router.Use(middleware.XMLBodyParser)
+	router.Use(body_parser.XMLBodyParser)
 	router.Use(expressgo.XMLBodyEncoder)
 	router.Handle("/register", http.MethodPost, expressgo.HandlerFunc(userController.Register))
 
