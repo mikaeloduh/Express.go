@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 func TestJWTMiddleware(t *testing.T) {
@@ -19,7 +18,7 @@ func TestJWTMiddleware(t *testing.T) {
 	options := Options{
 		Keyfunc: func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, e.ErrorTypeJWTInvalidFormat
+				return nil, ErrorTypeJWTInvalidFormat
 			}
 			return secretKey, nil
 		},
@@ -125,7 +124,7 @@ func TestJWTMiddleware(t *testing.T) {
 		middleware := JWTAuthMiddleware(options)
 		err := middleware(w, r, next)
 
-		assert.Equal(t, e.ErrorTypeJWTMissing, err)
+		assert.Equal(t, ErrorTypeJWTMissing, err)
 		assert.False(t, nextCalled, "Next function should not be called")
 	})
 
@@ -145,7 +144,7 @@ func TestJWTMiddleware(t *testing.T) {
 		middleware := JWTAuthMiddleware(options)
 		err := middleware(w, r, next)
 
-		assert.Equal(t, e.ErrorTypeJWTInvalidFormat, err)
+		assert.Equal(t, ErrorTypeJWTInvalidFormat, err)
 		assert.False(t, nextCalled, "Next function should not be called")
 	})
 
@@ -168,7 +167,7 @@ func TestJWTMiddleware(t *testing.T) {
 		middleware := JWTAuthMiddleware(options)
 		err := middleware(w, r, next)
 
-		assert.Equal(t, e.ErrorTypeJWTExpired, err)
+		assert.Equal(t, ErrorTypeJWTExpired, err)
 		assert.False(t, nextCalled, "Next function should not be called")
 	})
 
@@ -197,7 +196,7 @@ func TestJWTMiddleware(t *testing.T) {
 		middleware := JWTAuthMiddleware(options)
 		err := middleware(w, r, next)
 
-		assert.Equal(t, e.ErrorTypeJWTInvalidSignature, err)
+		assert.Equal(t, ErrorTypeJWTInvalidSignature, err)
 		assert.False(t, nextCalled, "Next function should not be called")
 	})
 }

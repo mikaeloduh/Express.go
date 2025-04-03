@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 )
 
 type Options struct {
@@ -60,12 +59,12 @@ func JWTAuthMiddleware(options Options) expressgo.Middleware {
 		// Extract token from Authorization header
 		authHeader := options.GetHeader(r)
 		if authHeader == "" {
-			return e.ErrorTypeJWTMissing
+			return ErrorTypeJWTMissing
 		}
 
 		// Check if the token has Bearer prefix
 		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-			return e.ErrorTypeJWTInvalidFormat
+			return ErrorTypeJWTInvalidFormat
 		}
 
 		tokenString := authHeader[7:]
@@ -78,17 +77,17 @@ func JWTAuthMiddleware(options Options) expressgo.Middleware {
 		if err != nil {
 			// In jwt v5, we use errors.Is to check for specific errors
 			if errors.Is(err, jwt.ErrTokenExpired) {
-				return e.ErrorTypeJWTExpired
+				return ErrorTypeJWTExpired
 			} else if errors.Is(err, jwt.ErrTokenSignatureInvalid) {
-				return e.ErrorTypeJWTInvalidSignature
+				return ErrorTypeJWTInvalidSignature
 			} else {
-				return e.ErrorTypeJWTInvalid
+				return ErrorTypeJWTInvalid
 			}
 		}
 
 		// Final validation
 		if !token.Valid {
-			return e.ErrorTypeJWTInvalid
+			return ErrorTypeJWTInvalid
 		}
 
 		// Check if custom claims retrieval is provided and has claims

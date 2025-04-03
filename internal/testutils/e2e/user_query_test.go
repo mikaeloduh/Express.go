@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
 	expressgojwt "github.com/mikaeloduh/expressgo/pkg/expressgo/middleware/expressgo_jwt"
 )
 
@@ -38,7 +37,7 @@ func TestUserQuery(t *testing.T) {
 		Keyfunc: func(token *jwt.Token) (interface{}, error) {
 			// Validate signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, e.ErrorTypeJWTInvalidSigningMethod
+				return nil, expressgojwt.ErrorTypeJWTInvalidSigningMethod
 			}
 			return authSecretKey, nil
 		},
