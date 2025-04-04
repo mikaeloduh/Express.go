@@ -26,10 +26,10 @@ type RegisterResponse struct {
 	Email    string `json:"email" xml:"email"`
 }
 
-func (c *UserController) Register(w *expressgo.Response, r *expressgo.Request) error {
+func (c *UserController) Register(req *expressgo.Request, res *expressgo.Response) error {
 	var reqData RegisterRequest
-	if err := r.ParseBodyInto(&reqData); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := req.ParseBodyInto(&reqData); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
 		return err
 	}
 
@@ -49,9 +49,9 @@ func (c *UserController) Register(w *expressgo.Response, r *expressgo.Request) e
 		Email:    user.Email,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Content-Type", "application/json")
 
-	return w.Encode(respData)
+	return res.Encode(respData)
 }
 
 func TestRegisterHandlerJSON(t *testing.T) {

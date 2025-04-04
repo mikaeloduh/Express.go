@@ -18,15 +18,15 @@ type UserQueryResponse struct {
 	Email    string `json:"email"`
 }
 
-func UserQueryHandler(w *expressgo.Response, _ *expressgo.Request) error {
-	res := UserQueryResponse{
+func UserQueryHandler(_ *expressgo.Request, res *expressgo.Response) error {
+	resData := UserQueryResponse{
 		Username: "correctName",
 		Email:    "q4o5D@example.com",
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Content-Type", "application/json")
 
-	return w.Encode(res)
+	return res.Encode(resData)
 }
 
 func TestUserQuery(t *testing.T) {

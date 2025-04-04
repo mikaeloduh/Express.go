@@ -86,11 +86,11 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
-		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
-		service2 := container.GetWithContext(r.Context(), "TestService").(*TestService)
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(req *expressgo.Request, res *expressgo.Response) error {
+		service1 := container.GetWithContext(req.Context(), "TestService").(*TestService)
+		service2 := container.GetWithContext(req.Context(), "TestService").(*TestService)
 
-		w.Write([]byte(fmt.Sprintf("%p %p", service1, service2)))
+		res.Write([]byte(fmt.Sprintf("%p %p", service1, service2)))
 		return nil
 	}))
 
@@ -116,10 +116,10 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
-		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(req *expressgo.Request, res *expressgo.Response) error {
+		service1 := container.GetWithContext(req.Context(), "TestService").(*TestService)
 
-		w.Write([]byte(fmt.Sprintf("%p", service1)))
+		res.Write([]byte(fmt.Sprintf("%p", service1)))
 		return nil
 	}))
 
@@ -159,12 +159,12 @@ func TestHttpRequestScope_MultipleServices(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(req *expressgo.Request, res *expressgo.Response) error {
 		// get two service instances in the same request
-		service1a := container.GetWithContext(r.Context(), "Service1").(*TestService)
-		service2a := container.GetWithContext(r.Context(), "Service2").(*TestService)
-		service1b := container.GetWithContext(r.Context(), "Service1").(*TestService)
-		service2b := container.GetWithContext(r.Context(), "Service2").(*TestService)
+		service1a := container.GetWithContext(req.Context(), "Service1").(*TestService)
+		service2a := container.GetWithContext(req.Context(), "Service2").(*TestService)
+		service1b := container.GetWithContext(req.Context(), "Service1").(*TestService)
+		service2b := container.GetWithContext(req.Context(), "Service2").(*TestService)
 
 		// ensure that the same service returns the same instance in the same request
 		require.Equal(t, service1a.ID, service1b.ID)
@@ -173,7 +173,7 @@ func TestHttpRequestScope_MultipleServices(t *testing.T) {
 		// ensure that different services return different instances
 		require.NotEqual(t, service1a.ID, service2a.ID)
 
-		w.Write([]byte("ok"))
+		res.Write([]byte("ok"))
 		return nil
 	}))
 

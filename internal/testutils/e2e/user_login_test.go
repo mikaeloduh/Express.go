@@ -25,9 +25,9 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w *expressgo.Response, r *expressgo.Request) error {
+func (c *UserController) Login(req *expressgo.Request, res *expressgo.Response) error {
 	var reqData LoginRequest
-	if err := r.ParseBodyInto(&reqData); err != nil {
+	if err := req.ParseBodyInto(&reqData); err != nil {
 		return err
 	}
 
@@ -51,9 +51,9 @@ func (c *UserController) Login(w *expressgo.Response, r *expressgo.Request) erro
 		Email:    user.Email,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Content-Type", "application/json")
 
-	return w.Encode(respData)
+	return res.Encode(respData)
 }
 
 func TestUserLogin(t *testing.T) {

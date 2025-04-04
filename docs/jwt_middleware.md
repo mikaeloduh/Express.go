@@ -28,12 +28,12 @@ options := framework.Options{
         return mySecretKey, nil
     },
     // Custom token retrieval method
-    GetHeader: func(r *framework.Request) string {
+    GetHeader: func(r *expressgo.Request) string {
         // For example, get token from custom header or query parameter
         return r.Header.Get("X-API-Token")
     },
     // Add custom claims
-    GetClaims: func(r *framework.Request) (jwt.MapClaims, bool) {
+    GetClaims: func(r *expressgo.Request) (jwt.MapClaims, bool) {
         return jwt.MapClaims{"custom": "value"}, true
     },
     // Custom context setting
@@ -55,13 +55,13 @@ The `Options` struct defines all configurable options for the JWT middleware:
 type Options struct {
     // Keyfunc is a function used to validate JWT signature
     Keyfunc jwt.Keyfunc
-    
+
     // GetHeader is a function to get the authentication header from the request
-    GetHeader func(r *Request) string
-    
+    GetHeader func(r *expressgo.Request) string
+
     // GetClaims is a function to get additional claims, which will be merged with claims from the JWT token
-    GetClaims func(r *Request) (jwt.MapClaims, bool)
-    
+    GetClaims func(r *expressgo.Request) (jwt.MapClaims, bool)
+
     // SetContext is a function to customize setting JWT claims to the context
     SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
 }

@@ -20,9 +20,9 @@ import (
 //
 // Returns:
 //   - error: Always returns nil as this middleware doesn't produce errors
-func JSONBodyParser(w *expressgo.Response, r *expressgo.Request, next func()) error {
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
-		r.SetDecoder(JSONDecoder)
+func JSONBodyParser(req *expressgo.Request, _ *expressgo.Response, next func()) error {
+	if strings.HasPrefix(req.Header.Get("Content-Type"), "application/json") {
+		req.SetDecoder(JSONDecoder)
 	}
 
 	next()
@@ -41,9 +41,9 @@ func JSONBodyParser(w *expressgo.Response, r *expressgo.Request, next func()) er
 //
 // Returns:
 //   - error: Always returns nil as this middleware doesn't produce errors
-func XMLBodyParser(w *expressgo.Response, r *expressgo.Request, next func()) error {
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/xml") {
-		r.SetDecoder(XMLDecoder)
+func XMLBodyParser(req *expressgo.Request, _ *expressgo.Response, next func()) error {
+	if strings.HasPrefix(req.Header.Get("Content-Type"), "application/xml") {
+		req.SetDecoder(XMLDecoder)
 	}
 
 	next()

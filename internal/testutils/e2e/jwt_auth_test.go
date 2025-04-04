@@ -32,10 +32,10 @@ func TestJWTAuth(t *testing.T) {
 	router := expressgo.NewRouter()
 	router.Use(expressgo.JSONBodyEncoder)
 	router.Use(jwtmw.AuthMiddleware(jwtOptions))
-	router.Handle("/test-jwt", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
+	router.Handle("/test-jwt", http.MethodGet, expressgo.HandlerFunc(func(req *expressgo.Request, res *expressgo.Response) error {
 		// Simple handler that returns a success response
-		w.Header().Set("Content-Type", "application/json")
-		return w.Encode(map[string]string{"status": "success"})
+		res.Header().Set("Content-Type", "application/json")
+		return res.Encode(map[string]string{"status": "success"})
 	}))
 
 	t.Run("test query user with valid JWT token", func(t *testing.T) {

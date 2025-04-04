@@ -55,9 +55,9 @@ func AuthMiddleware(options Options) expressgo.Middleware {
 		}
 	}
 
-	return func(w *expressgo.Response, r *expressgo.Request, next func()) error {
+	return func(req *expressgo.Request, res *expressgo.Response, next func()) error {
 		// Extract token from Authorization header
-		authHeader := options.GetHeader(r)
+		authHeader := options.GetHeader(req)
 		if authHeader == "" {
 			return ErrorTypeJWTMissing
 		}
@@ -91,15 +91,15 @@ func AuthMiddleware(options Options) expressgo.Middleware {
 		}
 
 		// Check if custom claims retrieval is provided and has claims
-		if customClaims, ok := options.GetClaims(r); ok {
+		if customClaims, ok := options.GetClaims(req); ok {
 			for k, v := range customClaims {
 				claims[k] = v
 			}
 		}
 
 		// Store claims in request context
-		r.Request = r.Request.WithContext(
-			options.SetContext(r.Context(), claims),
+		req.Request = req.Request.WithContext(
+			options.SetContext(req.Context(), claims),
 		)
 
 		next()

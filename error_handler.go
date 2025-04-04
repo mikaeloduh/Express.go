@@ -10,16 +10,16 @@ import (
 )
 
 // ErrorHandlerFunc is an interface of error handler
-type ErrorHandlerFunc func(err error, w *Response, r *Request, next func(error))
+type ErrorHandlerFunc func(err error, req *Request, res *Response, next func(error))
 
 // DefaultNotFoundErrorHandler return 404 page not found with detail message
-func DefaultNotFoundErrorHandler(err error, w *Response, r *Request, next func(error)) {
+func DefaultNotFoundErrorHandler(err error, req *Request, res *Response, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeNotFound) {
-			w.WriteHeader(er.Code)
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			_, _ = w.Write([]byte(fmt.Sprintf("Cannot find the path \"%v\"", r.URL.Path)))
+			res.WriteHeader(er.Code)
+			res.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			_, _ = res.Write([]byte(fmt.Sprintf("Cannot find the path \"%v\"", req.URL.Path)))
 			return
 		}
 	}
@@ -28,17 +28,17 @@ func DefaultNotFoundErrorHandler(err error, w *Response, r *Request, next func(e
 }
 
 // DefaultMethodNotAllowedErrorHandler return 405 method not allowed with detail message
-func DefaultMethodNotAllowedErrorHandler(err error, w *Response, r *Request, next func(error)) {
+func DefaultMethodNotAllowedErrorHandler(err error, req *Request, res *Response, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeMethodNotAllowed) {
-			w.WriteHeader(er.Code)
-			path := strings.Trim(r.URL.Path, "/")
+			res.WriteHeader(er.Code)
+			path := strings.Trim(req.URL.Path, "/")
 			if path == "" {
 				path = "/"
 			}
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			_, _ = w.Write([]byte(fmt.Sprintf("Method \"%v\" is not allowed on path \"%v\"", r.Method, path)))
+			res.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			_, _ = res.Write([]byte(fmt.Sprintf("Method \"%v\" is not allowed on path \"%v\"", req.Method, path)))
 			return
 		}
 	}
@@ -46,13 +46,13 @@ func DefaultMethodNotAllowedErrorHandler(err error, w *Response, r *Request, nex
 	next(err)
 }
 
-func DefaultUnauthorizedErrorHandler(err error, w *Response, r *Request, next func(error)) {
+func DefaultUnauthorizedErrorHandler(err error, _ *Request, res *Response, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeUnauthorized) {
-			w.WriteHeader(er.Code)
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			_, _ = w.Write([]byte("401 unauthorized"))
+			res.WriteHeader(er.Code)
+			res.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			_, _ = res.Write([]byte("401 unauthorized"))
 			return
 		}
 	}
@@ -61,16 +61,16 @@ func DefaultUnauthorizedErrorHandler(err error, w *Response, r *Request, next fu
 }
 
 // DefaultFallbackErrorHandler catch all remaining errors
-func DefaultFallbackErrorHandler(err error, w *Response, r *Request, next func(error)) {
+func DefaultFallbackErrorHandler(err error, _ *Request, res *Response, _ func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
-		w.WriteHeader(er.Code)
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = w.Write([]byte(er.Error()))
+		res.WriteHeader(er.Code)
+		res.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = res.Write([]byte(er.Error()))
 		return
 	}
 
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	_, _ = w.Write([]byte("500 internal server error"))
+	res.WriteHeader(http.StatusInternalServerError)
+	res.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	_, _ = res.Write([]byte("500 internal server error"))
 }
