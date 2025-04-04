@@ -1,4 +1,4 @@
-// Package body_parser provides middleware functions for parsing request bodies in different formats.
+// Package bodyparser provides middleware functions for parsing request bodies in different formats.
 package bodyparser
 
 import (

@@ -85,12 +85,12 @@ jwtMiddleware := framework.JWTAuthMiddleware(options)
 
 The JWT middleware returns specific error types that can be handled differently:
 
-- `ErrorTypeJWTMissing`: Authentication header is missing
-- `ErrorTypeJWTInvalidFormat`: Token format is incorrect (missing "Bearer" prefix)
 - `ErrorTypeJWTExpired`: Token has expired
-- `ErrorTypeJWTInvalidSignature`: Token signature is invalid
 - `ErrorTypeJWTInvalid`: Other JWT validation errors
+- `ErrorTypeJWTInvalidFormat`: Token format is incorrect (missing "Bearer" prefix)
+- `ErrorTypeJWTInvalidSignature`: Token signature is invalid
 - `ErrorTypeJWTInvalidSigningMethod`: Invalid JWT signing method
+- `ErrorTypeJWTMissing`: Authentication header is missing
 
 You can identify these error types in your error handling middleware and respond accordingly.
 
