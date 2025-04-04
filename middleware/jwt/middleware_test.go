@@ -1,4 +1,4 @@
-package expressgo_jwt
+package jwt
 
 import (
 	"context"

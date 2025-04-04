@@ -19,7 +19,7 @@ func (r *Request) SetDecoder(dec Decoder) {
 }
 
 // ParseBodyInto decodes the request body into the provided object
-func (r *Request) ParseBodyInto(obj interface{}) error {
+func (r *Request) ParseBodyInto(obj any) error {
 	if r.decoder == nil {
 		return fmt.Errorf("body parser not set, content type: %s", r.Header.Get("Content-Type"))
 	}
