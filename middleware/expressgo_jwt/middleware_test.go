@@ -44,8 +44,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req.Header.Set("X-Custom-Auth", "Bearer "+validToken) // Use custom header
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -89,8 +89,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer "+validToken)
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -113,8 +113,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -133,8 +133,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req.Header.Set("Authorization", "invalid-token")
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -156,8 +156,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer "+expiredToken)
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -185,8 +185,8 @@ func TestJWTMiddleware(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer "+tokenString)
 
 		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		w := expressgo.NewResponse(rw)
+		r := expressgo.NewRequest(req)
 
 		nextCalled := false
 		next := func() {
@@ -211,8 +211,8 @@ func TestJWTMiddlewareWithInvalidOptions(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signature")
 
 	rw := httptest.NewRecorder()
-	w := expressgo.NewResponseWriter(rw)
-	r := &expressgo.Request{Request: req}
+	w := expressgo.NewResponse(rw)
+	r := expressgo.NewRequest(req)
 
 	next := func() {}
 

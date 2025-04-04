@@ -18,7 +18,7 @@ type UserQueryResponse struct {
 	Email    string `json:"email"`
 }
 
-func UserQueryHandler(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+func UserQueryHandler(w *expressgo.Response, r *expressgo.Request) error {
 	res := UserQueryResponse{
 		Username: "correctName",
 		Email:    "q4o5D@example.com",

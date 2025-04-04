@@ -25,7 +25,7 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+func (c *UserController) Login(w *expressgo.Response, r *expressgo.Request) error {
 	var reqData LoginRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		return err

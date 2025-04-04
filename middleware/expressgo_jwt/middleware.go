@@ -55,7 +55,7 @@ func JWTAuthMiddleware(options Options) expressgo.Middleware {
 		}
 	}
 
-	return func(w *expressgo.ResponseWriter, r *expressgo.Request, next func()) error {
+	return func(w *expressgo.Response, r *expressgo.Request, next func()) error {
 		// Extract token from Authorization header
 		authHeader := options.GetHeader(r)
 		if authHeader == "" {

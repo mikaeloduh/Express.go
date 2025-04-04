@@ -9,19 +9,19 @@ import (
 
 // Handler is a function that implements the Handler interface
 type Handler interface {
-	ServeHTTP(*ResponseWriter, *Request) error
+	ServeHTTP(*Response, *Request) error
 }
 
 // HandlerFunc is a function that implements the Handler interface
-type HandlerFunc func(*ResponseWriter, *Request) error
+type HandlerFunc func(*Response, *Request) error
 
-func (f HandlerFunc) ServeHTTP(w *ResponseWriter, r *Request) error {
+func (f HandlerFunc) ServeHTTP(w *Response, r *Request) error {
 	return f(w, r)
 }
 
 // WrapHandler Convert the standard http.Handler to a Handler that returns an error
 func WrapHandler(h http.Handler) Handler {
-	return HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	return HandlerFunc(func(w *Response, r *Request) error {
 		h.ServeHTTP(w.ResponseWriter, r.Request)
 		return nil
 	})
@@ -53,7 +53,7 @@ func (rt *Router) RegisterErrorHandler(handlerFunc ErrorHandlerFunc) {
 }
 
 // HandleError handles errors
-func (rt *Router) HandleError(err error, w *ResponseWriter, r *Request) {
+func (rt *Router) HandleError(err error, w *Response, r *Request) {
 	if len(rt.errorHandlers) == 0 {
 		// use default error handlers if no error handlers
 		rt.errorHandlers = []ErrorHandlerFunc{DefaultNotFoundErrorHandler, DefaultMethodNotAllowedErrorHandler}
@@ -95,8 +95,8 @@ func (rt *Router) Handle(path string, method string, handler Handler) {
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	req := &Request{Request: r}
-	rw := &ResponseWriter{ResponseWriter: w}
+	req := NewRequest(r)
+	rw := NewResponse(w)
 
 	path := strings.Trim(req.URL.Path, "/")
 	if path == "" {
@@ -127,7 +127,7 @@ func (rt *Router) applyMiddleware(handler Handler) Handler {
 	for i := len(rt.middlewares) - 1; i >= 0; i-- {
 		mw := rt.middlewares[i]
 		currentHandler := h
-		h = HandlerFunc(func(w *ResponseWriter, r *Request) error {
+		h = HandlerFunc(func(w *Response, r *Request) error {
 			var err error
 			next := func() {
 				err = currentHandler.ServeHTTP(w, r)

@@ -86,7 +86,7 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
 		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 		service2 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
@@ -116,7 +116,7 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
 		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p", service1)))
@@ -159,7 +159,7 @@ func TestHttpRequestScope_MultipleServices(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
-	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+	router.Handle("/test-scope", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
 		// get two service instances in the same request
 		service1a := container.GetWithContext(r.Context(), "Service1").(*TestService)
 		service2a := container.GetWithContext(r.Context(), "Service2").(*TestService)

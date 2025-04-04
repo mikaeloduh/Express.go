@@ -92,7 +92,7 @@ func (h *HttpRequestScopeStrategy) clearRequestInstances(requestID string) {
 func HttpRequestScopeMiddleware(container *Container) expressgo.Middleware {
 	var requestCounter uint64
 
-	return func(w *expressgo.ResponseWriter, r *expressgo.Request, next func()) error {
+	return func(w *expressgo.Response, r *expressgo.Request, next func()) error {
 		requestID := atomic.AddUint64(&requestCounter, 1)
 
 		ctx := context.WithValue(r.Context(), REQUESTID, requestID)

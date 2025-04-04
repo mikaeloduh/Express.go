@@ -10,6 +10,10 @@ type Request struct {
 	decoder Decoder
 }
 
+func NewRequest(r *http.Request) *Request {
+	return &Request{r, nil}
+}
+
 func (r *Request) SetDecoder(dec Decoder) {
 	r.decoder = dec
 }

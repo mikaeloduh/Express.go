@@ -26,7 +26,7 @@ type RegisterResponse struct {
 	Email    string `json:"email" xml:"email"`
 }
 
-func (c *UserController) Register(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+func (c *UserController) Register(w *expressgo.Response, r *expressgo.Request) error {
 	var reqData RegisterRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

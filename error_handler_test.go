@@ -14,7 +14,7 @@ import (
 
 func TestDefaultErrorHandler(t *testing.T) {
 	r := NewRouter()
-	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *Response, r *Request) error {
 		_, _ = w.Write([]byte("OK"))
 		return nil
 	}))
@@ -50,7 +50,7 @@ func TestDefaultErrorHandler(t *testing.T) {
 }
 
 // The custom error handling function for 404 errors
-func JSONNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func JSONNotFoundErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeNotFound) {
@@ -72,7 +72,7 @@ func JSONNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next fun
 }
 
 // The custom error handling function for 405 errors
-func JSONMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func JSONMethodNotAllowedErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeMethodNotAllowed) {
@@ -101,7 +101,7 @@ func TestCustomErrorHandling(t *testing.T) {
 	r.RegisterErrorHandler(JSONNotFoundErrorHandler)
 	r.RegisterErrorHandler(JSONMethodNotAllowedErrorHandler)
 
-	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+	r.Handle("/test", http.MethodGet, HandlerFunc(func(w *Response, r *Request) error {
 		_, _ = w.Write([]byte("OK"))
 		return nil
 	}))

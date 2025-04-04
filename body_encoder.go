@@ -11,13 +11,13 @@ import (
 // It sets the Content-Type header to application/json if the client accepts JSON format.
 //
 // Parameters:
-//   - w: The ResponseWriter to configure
+//   - w: The Response to configure
 //   - r: The incoming Request containing headers
 //   - next: The next middleware function in the chain
 //
 // Returns:
 //   - error: Always returns nil as this middleware doesn't produce errors
-func JSONBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
+func JSONBodyEncoder(w *Response, r *Request, next func()) error {
 	w.UseEncoderDecorator(JSONEncoderDecorator)
 
 	accept := r.Header.Get("Accept")
@@ -65,13 +65,13 @@ func JSONEncoder(w http.ResponseWriter, obj any) error {
 // It sets the Content-Type header to application/xml if the client accepts XML format.
 //
 // Parameters:
-//   - w: The ResponseWriter to configure
+//   - w: The Response to configure
 //   - r: The incoming Request containing headers
 //   - next: The next middleware function in the chain
 //
 // Returns:
 //   - error: Always returns nil as this middleware doesn't produce errors
-func XMLBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
+func XMLBodyEncoder(w *Response, r *Request, next func()) error {
 	w.UseEncoderDecorator(XMLEncoderDecorator)
 
 	if strings.HasPrefix(r.Header.Get("Accept"), "application/xml") {

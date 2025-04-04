@@ -10,10 +10,10 @@ import (
 )
 
 // ErrorHandlerFunc is an interface of error handler
-type ErrorHandlerFunc func(err error, w *ResponseWriter, r *Request, next func(error))
+type ErrorHandlerFunc func(err error, w *Response, r *Request, next func(error))
 
 // DefaultNotFoundErrorHandler return 404 page not found with detail message
-func DefaultNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func DefaultNotFoundErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeNotFound) {
@@ -28,7 +28,7 @@ func DefaultNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next 
 }
 
 // DefaultMethodNotAllowedErrorHandler return 405 method not allowed with detail message
-func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func DefaultMethodNotAllowedErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeMethodNotAllowed) {
@@ -46,7 +46,7 @@ func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Reques
 	next(err)
 }
 
-func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func DefaultUnauthorizedErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		if errors.Is(er, e.ErrorTypeUnauthorized) {
@@ -61,7 +61,7 @@ func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, n
 }
 
 // DefaultFallbackErrorHandler catch all remaining errors
-func DefaultFallbackErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
+func DefaultFallbackErrorHandler(err error, w *Response, r *Request, next func(error)) {
 	var er *e.Error
 	if errors.As(err, &er) {
 		w.WriteHeader(er.Code)
