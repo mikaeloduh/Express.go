@@ -9,8 +9,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware/expressgo_jwt"
+	"github.com/mikaeloduh/expressgo"
+	expressgo_jwt2 "github.com/mikaeloduh/expressgo/middleware/expressgo_jwt"
 )
 
 // Test secret key
@@ -19,11 +19,11 @@ var jwtSecretKey = []byte("jwt-test-secret-key")
 // TestJWTAuth tests the JWTAuthMiddleware with the UserQuery handler
 func TestJWTAuth(t *testing.T) {
 
-	jwtOptions := expressgo_jwt.Options{
+	jwtOptions := expressgo_jwt2.Options{
 		Keyfunc: func(token *jwt.Token) (interface{}, error) {
 			// Validate signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, expressgo_jwt.ErrorTypeJWTInvalidSigningMethod
+				return nil, expressgo_jwt2.ErrorTypeJWTInvalidSigningMethod
 			}
 			return jwtSecretKey, nil
 		},
@@ -31,7 +31,7 @@ func TestJWTAuth(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(expressgo.JSONBodyEncoder)
-	router.Use(expressgo_jwt.JWTAuthMiddleware(jwtOptions))
+	router.Use(expressgo_jwt2.JWTAuthMiddleware(jwtOptions))
 	router.Handle("/test-jwt", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.ResponseWriter, r *expressgo.Request) error {
 		// Simple handler that returns a success response
 		w.Header().Set("Content-Type", "application/json")

@@ -6,7 +6,7 @@ package body_parser
 import (
 	"strings"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo"
 )
 
 // JSONBodyParser is a middleware that sets the BodyParser to JSONDecoder.

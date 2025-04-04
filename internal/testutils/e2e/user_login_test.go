@@ -9,9 +9,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/middleware/body_parser"
+	"github.com/mikaeloduh/expressgo"
+	"github.com/mikaeloduh/expressgo/e"
+	"github.com/mikaeloduh/expressgo/middleware/body_parser"
 )
 
 type LoginRequest struct {

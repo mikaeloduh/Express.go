@@ -3,7 +3,7 @@ package expressgo_jwt
 import (
 	"net/http"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
+	"github.com/mikaeloduh/expressgo/e"
 )
 
 // JWT specific errors

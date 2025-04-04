@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo"
 )
 
 func TestJWTMiddleware(t *testing.T) {

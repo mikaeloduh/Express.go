@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo"
+	"github.com/mikaeloduh/expressgo"
 )
 
 type TestService struct {
