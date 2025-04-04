@@ -45,6 +45,6 @@ func (c *Container) GetWithContext(ctx context.Context, name string) any {
 	return def.strategy.Resolve(c, ctx, def)
 }
 
-type InstaceKey string
+type InstanceKey string
 
-const REQUESTID = InstaceKey("request_id")
+const REQUESTID = InstanceKey("request_id")

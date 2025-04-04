@@ -21,7 +21,7 @@ func TestWriteObjectAsJSON(t *testing.T) {
 	expected, _ := json.Marshal(testObject)
 
 	wr := httptest.NewRecorder()
-	w := &ResponseWriter{ResponseWriter: wr}
+	w := &Response{ResponseWriter: wr}
 	w.UseEncoderDecorator(JSONEncoderDecorator)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -38,7 +38,7 @@ func TestWriteObjectAsXML(t *testing.T) {
 	expected, _ := xml.Marshal(testObject)
 
 	wr := httptest.NewRecorder()
-	w := &ResponseWriter{ResponseWriter: wr}
+	w := &Response{ResponseWriter: wr}
 	w.UseEncoderDecorator(XMLEncoderDecorator)
 	w.Header().Set("Content-Type", "application/xml")
 

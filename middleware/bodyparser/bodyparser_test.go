@@ -1,4 +1,4 @@
-package body_parser
+package bodyparser
 
 import (
 	"encoding/json"
@@ -21,7 +21,7 @@ func TestRequest_ReadBodyAsObject(t *testing.T) {
 	req := httptest.NewRequest("POST", "/register", strings.NewReader(`{"field1":"value1","field2":123}`))
 	req.Header.Set("Content-Type", "application/json")
 
-	r := expressgo.Request{Request: req}
+	r := expressgo.NewRequest(req)
 	r.SetDecoder(JSONDecoder)
 
 	var testReq TestRequest
@@ -46,7 +46,7 @@ func TestReadBodyAsObject_JSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	r := expressgo.Request{Request: req}
+	r := expressgo.NewRequest(req)
 	r.SetDecoder(JSONDecoder)
 
 	err := r.ParseBodyInto(&testObject)
@@ -65,7 +65,7 @@ func TestReadBodyAsObject_XML(t *testing.T) {
 	req.Header.Set("Content-Type", "application/xml")
 
 	var testObject TestObject
-	r := expressgo.Request{Request: req}
+	r := expressgo.NewRequest(req)
 	r.SetDecoder(XMLDecoder)
 
 	err := r.ParseBodyInto(&testObject)
@@ -81,7 +81,7 @@ func TestReadBodyAsObject_InvalidContentType(t *testing.T) {
 	req.Header.Set("Content-Type", "text/plain")
 
 	var testObject TestObject
-	r := expressgo.Request{Request: req}
+	r := expressgo.NewRequest(req)
 	r.SetDecoder(JSONDecoder)
 
 	err := r.ParseBodyInto(&testObject)
@@ -95,7 +95,7 @@ func TestReadBodyAsObject_InvalidBody(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	r := expressgo.Request{Request: req}
+	r := expressgo.NewRequest(req)
 	r.SetDecoder(JSONDecoder)
 
 	err := r.ParseBodyInto(&testObject)

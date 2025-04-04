@@ -8,9 +8,8 @@ A lightweight and flexible web framework for Go, inspired by Express.js. Express
 - **Routing**: Simple and intuitive routing system
 - **Error Handling**: Built-in error handling middleware
 - **Body Parsing**: Support for JSON and XML request/response parsing
-- **Dependency Injection**: Built-in dependency injection container with different scopes
 - **JWT Authentication**: Comprehensive JWT authentication middleware with granular error handling
-- **Rate Limiting**: Built-in rate limiting middleware
+- **Dependency Injection**: Built-in dependency injection container with different scopes
 - **Extensible**: Easy to extend with custom middleware and handlers
 
 ## Installation
@@ -24,21 +23,21 @@ go get webframework
 ```go
 package main
 
-import "webframework/framework"
+import "github.com/mikaeloduh/expressgo"
 
 func main() {
-    router := framework.NewRouter()
-    
-    // Add middleware
-    router.Use(framework.JSONBodyParser)
-    
-    // Define routes
-    router.Handle("/", "GET", func(w *framework.ResponseWriter, r *framework.Request) error {
-        return w.Encode(map[string]string{"message": "Hello, World!"})
-    })
-    
-    // Start server
-    http.ListenAndServe(":3000", router)
+	router := expressgo.NewRouter()
+
+	// Add middleware
+	router.Use(expressgo.JSONBodyParser)
+
+	// Define routes
+	router.Handle("/", "GET", func(req *expressgo.Request, res *expressgo.Response) error {
+		return res.Encode(map[string]string{"message": "Hello, World!"})
+	})
+
+	// Start server
+	http.ListenAndServe(":3000", router)
 }
 ```
 
@@ -49,7 +48,7 @@ func main() {
 The router is the core of Express.go. It handles HTTP requests and routes them to the appropriate handlers.
 
 ```go
-router := framework.NewRouter()
+router := expressgo.NewRouter()
 router.Handle("/path", "GET", handlerFunc)
 ```
 
@@ -58,7 +57,7 @@ router.Handle("/path", "GET", handlerFunc)
 Middleware functions can be used to modify requests/responses and perform actions before/after handlers:
 
 ```go
-router.Use(framework.JSONBodyParser)
+router.Use(expressgo.JSONBodyParser)
 router.Use(YourCustomMiddleware)
 ```
 
@@ -67,21 +66,23 @@ router.Use(YourCustomMiddleware)
 Express.go provides built-in error handling:
 
 ```go
-router.RegisterErrorHandler(framework.DefaultNotFoundErrorHandler)
-router.RegisterErrorHandler(framework.DefaultMethodNotAllowedErrorHandler)
+router.RegisterErrorHandler(expressgo.DefaultNotFoundErrorHandler)
+router.RegisterErrorHandler(expressgo.DefaultMethodNotAllowedErrorHandler)
 ```
 
 ### Dependency Injection
 
-The framework includes a dependency injection container with support for different scopes:
+The framework includes a dependency injection container with built-in support for different scopes:
 
 - Singleton
 - Prototype
-- Request
+- HttpRequest
 
 ```go
-container := framework.NewContainer()
-container.Register("service", factory, framework.SingletonScopeStrategy{})
+import "github.com/mikaeloduh/expressgo/di"
+
+container := di.NewContainer()
+container.Register("service", BeamFactory, di.SingletonScopeStrategy{})
 ```
 
 ### JWT Authentication
@@ -89,21 +90,25 @@ container.Register("service", factory, framework.SingletonScopeStrategy{})
 Express.go provides a comprehensive JWT authentication middleware that handles token validation and error reporting:
 
 ```go
+import "github.com/mikaeloduh/expressgo/jwt"
+
 // Create JWT middleware with your secret key
 secretKey := []byte("your-secret-key")
-router.Use(framework.JWTAuthMiddleware(secretKey))
+router.Use(jwt.AuthMiddleware(jwt.Options{
+    Secret: secretKey,
+}))
 
 // Access JWT claims in your handler
-router.Handle("/protected", "GET", func(w *framework.ResponseWriter, r *framework.Request) error {
-    claims, ok := framework.GetJWTClaimsFromContext(r.Context())
+router.Handle("/protected", "GET", func(req *expressgo.Request, res *expressgo.Response) error {
+    claims, ok := jwt.GetJWTClaimsFromContext(req.Context())
     if !ok {
         return errors.New("JWT claims not found in context")
     }
-    
+
     // Access claims data
     userID, _ := claims["user_id"].(string)
-    
-    return w.Encode(map[string]string{"message": "Protected resource", "user_id": userID})
+
+    return res.Encode(map[string]string{"message": "Protected resource", "user_id": userID})
 })
 ```
 

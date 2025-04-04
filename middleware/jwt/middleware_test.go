@@ -1,4 +1,4 @@
-package expressgo_jwt
+package jwt
 
 import (
 	"context"
@@ -40,12 +40,11 @@ func TestJWTMiddleware(t *testing.T) {
 		validToken := createToken("user1", time.Now().Add(time.Hour))
 		customClaims := jwt.MapClaims{"role": "admin"}
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.Header.Set("X-Custom-Auth", "Bearer "+validToken) // Use custom header
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request.Header.Set("X-Custom-Auth", "Bearer "+validToken) // Use custom header
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
@@ -68,14 +67,14 @@ func TestJWTMiddleware(t *testing.T) {
 			},
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.NoError(t, err)
 		assert.True(t, nextCalled, "Next function should be called")
 
 		// Assert the claims were set in the request context
-		tokenClaims, ok := GetJWTClaimsFromContext(r.Context())
+		tokenClaims, ok := GetJWTClaimsFromContext(req.Context())
 		assert.True(t, ok, "JWT claims should be set in the request context")
 		assert.Equal(t, "user1", tokenClaims["sub"])
 		assert.Equal(t, "admin", tokenClaims["role"]) // Check custom claim was merged
@@ -85,64 +84,61 @@ func TestJWTMiddleware(t *testing.T) {
 		// Create a valid token
 		validToken := createToken("user1", time.Now().Add(time.Hour))
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.Header.Set("Authorization", "Bearer "+validToken)
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request.Header.Set("Authorization", "Bearer "+validToken)
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.NoError(t, err)
 		assert.True(t, nextCalled, "Next function should be called")
 
 		// Assert the claims were set in the request context
-		tokenClaims, ok := GetJWTClaimsFromContext(r.Context())
+		tokenClaims, ok := GetJWTClaimsFromContext(req.Context())
 		assert.True(t, ok, "JWT claims should be set in the request context")
 		assert.Equal(t, "user1", tokenClaims["sub"])
 	})
 
 	t.Run("missing token", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.Equal(t, ErrorTypeJWTMissing, err)
 		assert.False(t, nextCalled, "Next function should not be called")
 	})
 
 	t.Run("invalid token format", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.Header.Set("Authorization", "invalid-token")
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request.Header.Set("Authorization", "invalid-token")
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.Equal(t, ErrorTypeJWTInvalidFormat, err)
 		assert.False(t, nextCalled, "Next function should not be called")
@@ -152,20 +148,19 @@ func TestJWTMiddleware(t *testing.T) {
 		// Create an expired token
 		expiredToken := createToken("user1", time.Now().Add(-time.Hour))
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.Header.Set("Authorization", "Bearer "+expiredToken)
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request.Header.Set("Authorization", "Bearer "+expiredToken)
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.Equal(t, ErrorTypeJWTExpired, err)
 		assert.False(t, nextCalled, "Next function should not be called")
@@ -181,20 +176,19 @@ func TestJWTMiddleware(t *testing.T) {
 
 		tokenString, _ := token.SignedString(differentKey)
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.Header.Set("Authorization", "Bearer "+tokenString)
+		request := httptest.NewRequest(http.MethodGet, "/test", nil)
+		request.Header.Set("Authorization", "Bearer "+tokenString)
 
-		rw := httptest.NewRecorder()
-		w := expressgo.NewResponseWriter(rw)
-		r := &expressgo.Request{Request: req}
+		req := expressgo.NewRequest(request)
+		res := expressgo.NewResponse(httptest.NewRecorder())
 
 		nextCalled := false
 		next := func() {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
-		err := middleware(w, r, next)
+		middleware := AuthMiddleware(options)
+		err := middleware(req, res, next)
 
 		assert.Equal(t, ErrorTypeJWTInvalidSignature, err)
 		assert.False(t, nextCalled, "Next function should not be called")
@@ -204,19 +198,18 @@ func TestJWTMiddleware(t *testing.T) {
 func TestJWTMiddlewareWithInvalidOptions(t *testing.T) {
 	// Test with invalid options
 	emptyOptions := Options{}
-	middleware := JWTAuthMiddleware(emptyOptions)
+	middleware := AuthMiddleware(emptyOptions)
 
 	// Create request
-	req := httptest.NewRequest(http.MethodGet, "/test", nil)
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signature")
+	request := httptest.NewRequest(http.MethodGet, "/test", nil)
+	request.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signature")
 
-	rw := httptest.NewRecorder()
-	w := expressgo.NewResponseWriter(rw)
-	r := &expressgo.Request{Request: req}
+	req := expressgo.NewRequest(request)
+	res := expressgo.NewResponse(httptest.NewRecorder())
 
 	next := func() {}
 
 	// When Keyfunc is nil, should return an error
-	err := middleware(w, r, next)
+	err := middleware(req, res, next)
 	assert.Error(t, err, "Should return an error with invalid options")
 }

@@ -11,7 +11,7 @@ import (
 
 	"github.com/mikaeloduh/expressgo"
 	"github.com/mikaeloduh/expressgo/e"
-	"github.com/mikaeloduh/expressgo/middleware/body_parser"
+	"github.com/mikaeloduh/expressgo/middleware/bodyparser"
 )
 
 type LoginRequest struct {
@@ -25,9 +25,9 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w *expressgo.ResponseWriter, r *expressgo.Request) error {
+func (c *UserController) Login(req *expressgo.Request, res *expressgo.Response) error {
 	var reqData LoginRequest
-	if err := r.ParseBodyInto(&reqData); err != nil {
+	if err := req.ParseBodyInto(&reqData); err != nil {
 		return err
 	}
 
@@ -51,15 +51,15 @@ func (c *UserController) Login(w *expressgo.ResponseWriter, r *expressgo.Request
 		Email:    user.Email,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Content-Type", "application/json")
 
-	return w.Encode(respData)
+	return res.Encode(respData)
 }
 
 func TestUserLogin(t *testing.T) {
 	userController := NewUserController(userService)
 	router := expressgo.NewRouter()
-	router.Use(body_parser.JSONBodyParser)
+	router.Use(bodyparser.JSONBodyParser)
 	router.Use(expressgo.JSONBodyEncoder)
 	router.Handle("/login", http.MethodPost, expressgo.HandlerFunc(userController.Login))
 

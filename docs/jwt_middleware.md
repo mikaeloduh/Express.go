@@ -28,12 +28,12 @@ options := framework.Options{
         return mySecretKey, nil
     },
     // Custom token retrieval method
-    GetHeader: func(r *framework.Request) string {
+    GetHeader: func(r *expressgo.Request) string {
         // For example, get token from custom header or query parameter
         return r.Header.Get("X-API-Token")
     },
     // Add custom claims
-    GetClaims: func(r *framework.Request) (jwt.MapClaims, bool) {
+    GetClaims: func(r *expressgo.Request) (jwt.MapClaims, bool) {
         return jwt.MapClaims{"custom": "value"}, true
     },
     // Custom context setting
@@ -55,13 +55,13 @@ The `Options` struct defines all configurable options for the JWT middleware:
 type Options struct {
     // Keyfunc is a function used to validate JWT signature
     Keyfunc jwt.Keyfunc
-    
+
     // GetHeader is a function to get the authentication header from the request
-    GetHeader func(r *Request) string
-    
+    GetHeader func(r *expressgo.Request) string
+
     // GetClaims is a function to get additional claims, which will be merged with claims from the JWT token
-    GetClaims func(r *Request) (jwt.MapClaims, bool)
-    
+    GetClaims func(r *expressgo.Request) (jwt.MapClaims, bool)
+
     // SetContext is a function to customize setting JWT claims to the context
     SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
 }
@@ -85,12 +85,12 @@ jwtMiddleware := framework.JWTAuthMiddleware(options)
 
 The JWT middleware returns specific error types that can be handled differently:
 
-- `ErrorTypeJWTMissing`: Authentication header is missing
-- `ErrorTypeJWTInvalidFormat`: Token format is incorrect (missing "Bearer" prefix)
 - `ErrorTypeJWTExpired`: Token has expired
-- `ErrorTypeJWTInvalidSignature`: Token signature is invalid
 - `ErrorTypeJWTInvalid`: Other JWT validation errors
+- `ErrorTypeJWTInvalidFormat`: Token format is incorrect (missing "Bearer" prefix)
+- `ErrorTypeJWTInvalidSignature`: Token signature is invalid
 - `ErrorTypeJWTInvalidSigningMethod`: Invalid JWT signing method
+- `ErrorTypeJWTMissing`: Authentication header is missing
 
 You can identify these error types in your error handling middleware and respond accordingly.
 

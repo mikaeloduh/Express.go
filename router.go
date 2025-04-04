@@ -9,20 +9,20 @@ import (
 
 // Handler is a function that implements the Handler interface
 type Handler interface {
-	ServeHTTP(*ResponseWriter, *Request) error
+	ServeHTTP(*Request, *Response) error
 }
 
 // HandlerFunc is a function that implements the Handler interface
-type HandlerFunc func(*ResponseWriter, *Request) error
+type HandlerFunc func(*Request, *Response) error
 
-func (f HandlerFunc) ServeHTTP(w *ResponseWriter, r *Request) error {
-	return f(w, r)
+func (f HandlerFunc) ServeHTTP(req *Request, res *Response) error {
+	return f(req, res)
 }
 
 // WrapHandler Convert the standard http.Handler to a Handler that returns an error
 func WrapHandler(h http.Handler) Handler {
-	return HandlerFunc(func(w *ResponseWriter, r *Request) error {
-		h.ServeHTTP(w.ResponseWriter, r.Request)
+	return HandlerFunc(func(req *Request, res *Response) error {
+		h.ServeHTTP(res.ResponseWriter, req.Request)
 		return nil
 	})
 }
@@ -53,7 +53,7 @@ func (rt *Router) RegisterErrorHandler(handlerFunc ErrorHandlerFunc) {
 }
 
 // HandleError handles errors
-func (rt *Router) HandleError(err error, w *ResponseWriter, r *Request) {
+func (rt *Router) HandleError(err error, req *Request, res *Response) {
 	if len(rt.errorHandlers) == 0 {
 		// use default error handlers if no error handlers
 		rt.errorHandlers = []ErrorHandlerFunc{DefaultNotFoundErrorHandler, DefaultMethodNotAllowedErrorHandler}
@@ -64,12 +64,12 @@ func (rt *Router) HandleError(err error, w *ResponseWriter, r *Request) {
 	next = func(err error) {
 		if currentHandlerIndex >= len(rt.errorHandlers) {
 			// use default error handler if no error handlers
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		handler := rt.errorHandlers[currentHandlerIndex]
 		currentHandlerIndex++
-		handler(err, w, r, next)
+		handler(err, req, res, next)
 	}
 
 	next(err)
@@ -95,8 +95,8 @@ func (rt *Router) Handle(path string, method string, handler Handler) {
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	req := &Request{Request: r}
-	rw := &ResponseWriter{ResponseWriter: w}
+	req := NewRequest(r)
+	res := NewResponse(w)
 
 	path := strings.Trim(req.URL.Path, "/")
 	if path == "" {
@@ -108,18 +108,18 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if methodHandlers, ok := rt.routes[path]; ok {
 		if h, ok := methodHandlers[method]; ok {
 			handler := rt.applyMiddleware(h)
-			if err := handler.ServeHTTP(rw, req); err != nil {
-				rt.HandleError(err, rw, req)
+			if err := handler.ServeHTTP(req, res); err != nil {
+				rt.HandleError(err, req, res)
 			}
 			return
 		}
 		// 405
-		rt.HandleError(e.ErrorTypeMethodNotAllowed, rw, req)
+		rt.HandleError(e.ErrorTypeMethodNotAllowed, req, res)
 		return
 	}
 
 	// 404
-	rt.HandleError(e.ErrorTypeNotFound, rw, req)
+	rt.HandleError(e.ErrorTypeNotFound, req, res)
 }
 
 func (rt *Router) applyMiddleware(handler Handler) Handler {
@@ -127,12 +127,12 @@ func (rt *Router) applyMiddleware(handler Handler) Handler {
 	for i := len(rt.middlewares) - 1; i >= 0; i-- {
 		mw := rt.middlewares[i]
 		currentHandler := h
-		h = HandlerFunc(func(w *ResponseWriter, r *Request) error {
+		h = HandlerFunc(func(r *Request, w *Response) error {
 			var err error
 			next := func() {
-				err = currentHandler.ServeHTTP(w, r)
+				err = currentHandler.ServeHTTP(r, w)
 			}
-			if err := mw(w, r, next); err != nil {
+			if err := mw(r, w, next); err != nil {
 				return err
 			}
 			return err

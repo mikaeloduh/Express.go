@@ -7,14 +7,14 @@ import (
 	"github.com/mikaeloduh/expressgo/e"
 )
 
-type ResponseWriter struct {
+type Response struct {
 	http.ResponseWriter
 	encoder Encoder
 }
 
-// NewResponseWriter creates a new ResponseWriter
-func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
-	return &ResponseWriter{
+// NewResponse creates a new Response
+func NewResponse(w http.ResponseWriter) *Response {
+	return &Response{
 		ResponseWriter: w,
 		encoder: func(rw http.ResponseWriter, obj any) error {
 			// fallback encoder
@@ -23,10 +23,10 @@ func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
 	}
 }
 
-func (w *ResponseWriter) UseEncoderDecorator(enc EncoderDecorator) {
-	w.encoder = enc(w.encoder)
+func (rs *Response) UseEncoderDecorator(enc EncoderDecorator) {
+	rs.encoder = enc(rs.encoder)
 }
 
-func (w *ResponseWriter) Encode(obj any) error {
-	return w.encoder(w.ResponseWriter, obj)
+func (rs *Response) Encode(obj any) error {
+	return rs.encoder(rs.ResponseWriter, obj)
 }
