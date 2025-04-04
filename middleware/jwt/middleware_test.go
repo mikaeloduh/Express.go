@@ -68,7 +68,7 @@ func TestJWTMiddleware(t *testing.T) {
 			},
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.NoError(t, err)
@@ -97,7 +97,7 @@ func TestJWTMiddleware(t *testing.T) {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.NoError(t, err)
@@ -121,7 +121,7 @@ func TestJWTMiddleware(t *testing.T) {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.Equal(t, ErrorTypeJWTMissing, err)
@@ -141,7 +141,7 @@ func TestJWTMiddleware(t *testing.T) {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.Equal(t, ErrorTypeJWTInvalidFormat, err)
@@ -164,7 +164,7 @@ func TestJWTMiddleware(t *testing.T) {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.Equal(t, ErrorTypeJWTExpired, err)
@@ -193,7 +193,7 @@ func TestJWTMiddleware(t *testing.T) {
 			nextCalled = true
 		}
 
-		middleware := JWTAuthMiddleware(options)
+		middleware := AuthMiddleware(options)
 		err := middleware(w, r, next)
 
 		assert.Equal(t, ErrorTypeJWTInvalidSignature, err)
@@ -204,7 +204,7 @@ func TestJWTMiddleware(t *testing.T) {
 func TestJWTMiddlewareWithInvalidOptions(t *testing.T) {
 	// Test with invalid options
 	emptyOptions := Options{}
-	middleware := JWTAuthMiddleware(emptyOptions)
+	middleware := AuthMiddleware(emptyOptions)
 
 	// Create request
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)

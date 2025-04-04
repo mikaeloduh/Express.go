@@ -31,7 +31,7 @@ func TestJWTAuth(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(expressgo.JSONBodyEncoder)
-	router.Use(jwtmw.JWTAuthMiddleware(jwtOptions))
+	router.Use(jwtmw.AuthMiddleware(jwtOptions))
 	router.Handle("/test-jwt", http.MethodGet, expressgo.HandlerFunc(func(w *expressgo.Response, r *expressgo.Request) error {
 		// Simple handler that returns a success response
 		w.Header().Set("Content-Type", "application/json")

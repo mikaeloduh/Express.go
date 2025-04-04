@@ -16,7 +16,7 @@ type Options struct {
 	SetContext func(ctx context.Context, claims jwt.MapClaims) context.Context
 }
 
-// JWTAuthMiddleware creates a new middleware for JWT authentication that validates JWT tokens
+// AuthMiddleware creates a new middleware for JWT authentication that validates JWT tokens
 // in the Authorization header using the provided secret key.
 //
 // The middleware performs the following checks:
@@ -35,7 +35,7 @@ type Options struct {
 // - ErrorTypeJWTInvalidSignature: Token signature is invalid
 // - ErrorTypeJWTInvalid: Any other JWT validation error
 // - ErrorTypeJWTInvalidSigningMethod: JWT signing method is invalid
-func JWTAuthMiddleware(options Options) expressgo.Middleware {
+func AuthMiddleware(options Options) expressgo.Middleware {
 	// Handle default value logic
 	if options.GetHeader == nil {
 		options.GetHeader = func(r *expressgo.Request) string {

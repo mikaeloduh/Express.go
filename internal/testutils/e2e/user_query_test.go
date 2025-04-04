@@ -45,7 +45,7 @@ func TestUserQuery(t *testing.T) {
 
 	router := expressgo.NewRouter()
 	router.Use(expressgo.JSONBodyEncoder)
-	router.Use(jwtmw.JWTAuthMiddleware(jwtOptions))
+	router.Use(jwtmw.AuthMiddleware(jwtOptions))
 	router.Handle("/query", http.MethodGet, expressgo.HandlerFunc(UserQueryHandler))
 
 	t.Run("test query user successfully with JWT", func(t *testing.T) {
