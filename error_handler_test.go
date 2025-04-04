@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
+	"github.com/mikaeloduh/expressgo/e"
 )
 
 func TestDefaultErrorHandler(t *testing.T) {

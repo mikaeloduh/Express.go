@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
+	"github.com/mikaeloduh/expressgo/e"
 )
 
 // Handler is a function that implements the Handler interface

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mikaeloduh/expressgo/pkg/expressgo/e"
+	"github.com/mikaeloduh/expressgo/e"
 )
 
 type ResponseWriter struct {
