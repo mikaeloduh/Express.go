@@ -1,4 +1,4 @@
-package body_parser
+package bodyparser
 
 import (
 	"encoding/json"

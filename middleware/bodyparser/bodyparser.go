@@ -1,7 +1,7 @@
-// Package body_parser provides middleware functions for parsing request bodies in different formats.
+// Package bodyparser provides middleware functions for parsing request bodies in different formats.
 // It contains middleware implementations for automatically detecting and setting appropriate
 // decoders based on the Content-Type header of incoming requests.
-package body_parser
+package bodyparser
 
 import (
 	"strings"

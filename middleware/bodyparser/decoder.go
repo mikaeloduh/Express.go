@@ -1,5 +1,5 @@
 // Package body_parser provides middleware functions for parsing request bodies in different formats.
-package body_parser
+package bodyparser
 
 import (
 	"encoding/json"
